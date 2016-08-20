@@ -1,10 +1,23 @@
-require 'typescript/rails'
-require 'typescript-node'
 
-module Typescript::Rails::Compiler
-  class << self
-    # @!scope class
-    cattr_accessor :default_options
+# Standard Library References
+require 'open3'
+require 'tmpdir'
+
+# External Gem References
+require 'sprockets'
+# require 'typescript-node'
+
+module TypeScriptSprockets
+  class TypeScriptProcessor
+    @@options = {
+      compiler_flags: ['--removeComments', '--noImplicitAny', '--noEmitOnError'],
+      compiler_command: 'node node_modules/typescript/bin/tsc'
+    }
+
+    class << self
+      def options(options = {})
+        @@options = @@options.merge(options)
+      end
 
     # Replace relative paths specified in /// <reference path="..." /> with absolute paths.
     #
@@ -50,21 +63,38 @@ module Typescript::Rails::Compiler
     # @param [String] source TypeScript source code
     # @param [Sprockets::Context] sprockets context object
     # @return [String] compiled JavaScript source code
-    def compile(ts_path, source, context=nil, *options)
+    def compile(ts_path, source, context=nil, input)
       if context
         get_all_reference_paths(File.expand_path(ts_path), source) do |abs_path|
           context.depend_on abs_path
         end
       end
-      s = replace_relative_references(ts_path, source)
-      begin
-        ::TypeScript::Node.compile(s, *default_options, *options)
-      rescue Exception => e
-        raise "Typescript error in file '#{ts_path}':\n#{e.message}"
+
+      Dir.mktmpdir do |tmpdir|
+        tmpfile = "#{tmpdir}/out"
+        tmpfile2 = "#{tmpdir}/in.ts"
+        s = replace_relative_references(ts_path, source)
+        File.write(tmpfile2, s)
+        stdout_str, stderr_str, status = Open3.capture3 "#{@@options[:compiler_command]} #{@@options[:compiler_flags].join ' '} --outFile #{tmpfile} #{tmpfile2}"
+
+        if status.success?
+          return { data: File.read(tmpfile) }
+        else
+          fail "TypeScript error in '#{input[:filename]}': #{stderr_str}\n\n#{stdout_str}"
+        end
       end
     end
 
+    def call(input)
+      source  = input[:data]
+      ts_path = input[:filename]
+      context = input[:environment].context_class.new(input)
+
+      compile(ts_path, source, context, input)
+    end
+    end
   end
 
-  self.default_options = %w(--target ES5 --noImplicitAny)
+  ::Sprockets.register_mime_type 'text/typescript', extensions: ['.js.ts']
+  ::Sprockets.register_transformer 'text/typescript', 'application/javascript', TypeScriptProcessor
 end
