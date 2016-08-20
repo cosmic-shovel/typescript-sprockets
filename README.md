@@ -1,33 +1,23 @@
 # TypeScript-Sprockets
 
-Enables you to use TypeScript with Sprockets (without Rails). This should make it possible to use TypeScript with [middleman-sprockets](https://github.com/middleman/middleman-sprockets) and/or
-[blade](https://github.com/javan/blade).
+Please note that this is currently a *WORK-IN-PROGRESS*.
 
-This gem will eventually allow you to use the
-[typescript-node-ruby](https://github.com/typescript-ruby/typescript-node-ruby)
-library by KAWACHI Takashi for the typescript parsing with node js. It will initially assume you are installing TypeScript locally with npm.
+Extends Sprockets to work with TypeScript (fork of [typescript-rails](typescript-ruby/typeScript-rails)) without Rails. This should make it possible to use TypeScript with [middleman-sprockets](https://github.com/middleman/middleman-sprockets) and/or [blade](https://github.com/javan/blade).
 
-This is currently a *WORK-IN-PROGRESS*, everything below this sentence may be inaccurate.
+This gem assumes you are installing TypeScript locally with npm.
 
-The credit for the overall structure and the tests goes to the people that wrote the [coffee-rails](https://github.com/rails/coffee-rails) Gem, since I shamelessly copy&pasted some of their code.
+The credit for the overall structure and the tests goes to the people that wrote the [typescript-rails](https://github.com/typescript-ruby/typescript-rails) Gem, since I shamelessly copy&pasted some of their code.
 
 ## Requirements
 
 The current version requires that [node.js](http://nodejs.org/) is
 installed on the system.
 
-The requirement for node is tested upon starting the application. If
-the node command is not available you get the following error message:
-
-```
-typescript-node requires node command, but it's not found. Please install it. Set TS_NODE environmental variable If you want to use node command in non-standard path.
-```
-
 ## Installation
 
 Add this line to your application's Gemfile:
 
-    gem 'typescript-rails'
+    gem 'typescript-sprockets', 'git: 'https://github.com/preetpalS/typescript-sprockets.git', tag: '0.0.8', require: 'typescript-sprockets'
 
 And then execute:
 
@@ -35,13 +25,19 @@ And then execute:
 
 ## Usage
 
-Just add a `.js.ts` file in your `app/assets/javascripts` directory and include it just like you are used to do.
+After the sprockets gem (and this gem) is loaded, add the following lines of code:
+
+    require 'sprockets'
+    require 'typescript-sprockets'
+    ::Typescript::Sprockets::TypescriptProcessor.register
+
+Then just add a `.js.ts` file in your `app/assets/javascripts` directory and include it just like you are used to do.
 
 Configurations:
 
 ```
-# Its defaults are `--target ES5 --noImplicitAny`.
-Typescript::Rails::Compiler.default_options = [ ... ]
+# Its defaults are `['--removeComments', '--noImplicitAny', '--noEmitOnError']`.
+Typescript::Sprockets::TypescriptProcess.options(compiler_flags: ['--removeComments', '--noImplicitAny', '--noEmitOnError'], compiler_command: 'node node_modules/typescript/bin/tsc')
 ```
 
 ## Referenced TypeScript dependencies
@@ -58,9 +54,13 @@ Typescript::Rails::Compiler.default_options = [ ... ]
 
 ## Maintainers
 
-FUJI Goro <gfuji@cpan.org>
+Preetpal Sohal
 
 ## Authors
 
-Klaus Zanders <klaus.zanders@gmail.com>
+Preetpal Sohal <preetpal.sohal@gmail.com>
 
+Authors of the original repository that this is repository is a fork of:
+
+FUJI Goro <gfuji@cpan.org>
+Klaus Zanders <klaus.zanders@gmail.com>

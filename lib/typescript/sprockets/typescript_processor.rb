@@ -3,10 +3,6 @@
 require 'open3'
 require 'tmpdir'
 
-# External Gem References
-require 'sprockets'
-# require 'typescript-node'
-
 module Typescript
   module Sprockets
     class TypescriptProcessor
@@ -18,6 +14,16 @@ module Typescript
       class << self
         def options(options = {})
           @@options = @@options.merge(options)
+        end
+
+        def register
+          if ::Sprockets.respond_to? :register_transformer
+            ::Sprockets.register_transformer 'text/typescript', 'application/javascript', ::Typescript::Sprockets::TypescriptProcessor
+          end
+
+          if ::Sprockets.respond_to? :register_mime_type
+            ::Sprockets.register_mime_type 'text/typescript', extensions: ['.js.ts']
+          end
         end
 
         # Replace relative paths specified in /// <reference path="..." /> with absolute paths.

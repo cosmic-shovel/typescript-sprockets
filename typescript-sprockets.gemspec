@@ -15,7 +15,7 @@ Gem::Specification.new do |gem|
   gem.homepage      = 'https://github.com/preetpalS/typescript-sprockets'
 
   # gem.add_runtime_dependency 'typescript-node', '>= 1.6.2'
-  gem.add_runtime_dependency 'sprockets', '~> 3.7'
+  # gem.add_runtime_dependency 'sprockets', '~> 3.7'
 
   gem.files         = `git ls-files`.split($/)
   # gem.executables   = gem.files.grep(%r{^bin/}).map{ |f| File.basename(f) }
