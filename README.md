@@ -17,7 +17,7 @@ installed on the system.
 
 Add this line to your application's Gemfile:
 
-    gem 'typescript-sprockets', 'git: 'https://github.com/preetpalS/typescript-sprockets.git', tag: '0.0.8', require: 'typescript-sprockets'
+    gem 'typescript-sprockets', 'git: 'https://github.com/preetpalS/typescript-sprockets.git', tag: '0.0.9', require: 'typescript-sprockets'
 
 And then execute:
 
@@ -27,8 +27,8 @@ And then execute:
 
 After the sprockets gem (and this gem) is loaded, add the following lines of code:
 
-    require 'sprockets'
-    require 'typescript-sprockets'
+    require 'sprockets' # might not be necessary depending on when/where this line of code is executed
+    require 'typescript-sprockets' # might not be necessary depending on when/where this line of code is executed
     ::Typescript::Sprockets::TypescriptProcessor.register
 
 Then just add a `.js.ts` file in your `app/assets/javascripts` directory and include it just like you are used to do.
