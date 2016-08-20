@@ -1,12 +1,13 @@
-# TypeScript for Rails [![Build Status](https://travis-ci.org/typescript-ruby/typescript-rails.svg?branch=master)](https://travis-ci.org/typescript-ruby/typescript-rails) [![Coverage Status](https://coveralls.io/repos/typescript-ruby/typescript-rails/badge.png)](https://coveralls.io/r/typescript-ruby/typescript-rails)
+# TypeScript-Sprockets
 
-This is a wrapper for the [TypeScript](http://www.typescriptlang.org/), JavaScript superset language by Microsoft.
+Enables you to use TypeScript with Sprockets (without Rails). This should make it possible to use TypeScript with [middleman-sprockets](https://github.com/middleman/middleman-sprockets) and/or
+[blade](https://github.com/javan/blade).
 
-It enables you to use the `.ts` extension in the Asset Pipeline and also in ActionView Templates.
-
-This gem uses the
+This gem will eventually allow you to use the
 [typescript-node-ruby](https://github.com/typescript-ruby/typescript-node-ruby)
-library by KAWACHI Takashi for the typescript parsing with node js.
+library by KAWACHI Takashi for the typescript parsing with node js. It will initially assume you are installing TypeScript locally with npm.
+
+This is currently a work-in-progress, everything below this sentence may be inaccurate.
 
 The credit for the overall structure and the tests goes to the people that wrote the [coffee-rails](https://github.com/rails/coffee-rails) Gem, since I shamelessly copy&pasted some of their code.
 
