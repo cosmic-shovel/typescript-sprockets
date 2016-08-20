@@ -9,7 +9,7 @@ require 'sprockets'
 
 module Typescript
   module Sprockets
-    class TypeScriptProcessor
+    class TypescriptProcessor
       @@options = {
         compiler_flags: ['--removeComments', '--noImplicitAny', '--noEmitOnError'],
         compiler_command: 'node node_modules/typescript/bin/tsc'
@@ -97,6 +97,6 @@ module Typescript
     end
 
     ::Sprockets.register_mime_type 'text/typescript', extensions: ['.js.ts']
-    ::Sprockets.register_transformer 'text/typescript', 'application/javascript', TypeScriptProcessor
+    ::Sprockets.register_transformer 'text/typescript', 'application/javascript', TypescriptProcessor
   end
 end

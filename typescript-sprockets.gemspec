@@ -12,9 +12,9 @@ Gem::Specification.new do |gem|
   gem.email         = %w(preetpal.sohal@gmail.com)
   gem.description   = %q{Adds Typescript support to Sprockets}
   gem.summary       = %q{Adds Typescript support to Sprockets}
-  gem.homepage      = 'https://github.com/typescript-ruby/typescript-rails'
+  gem.homepage      = 'https://github.com/preetpalS/typescript-sprockets'
 
-  gem.add_runtime_dependency 'typescript-node', '>= 1.6.2'
+  # gem.add_runtime_dependency 'typescript-node', '>= 1.6.2'
   gem.add_runtime_dependency 'sprockets', '~> 3.7'
 
   gem.files         = `git ls-files`.split($/)
