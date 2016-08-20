@@ -7,7 +7,7 @@ This gem will eventually allow you to use the
 [typescript-node-ruby](https://github.com/typescript-ruby/typescript-node-ruby)
 library by KAWACHI Takashi for the typescript parsing with node js. It will initially assume you are installing TypeScript locally with npm.
 
-This is currently a work-in-progress, everything below this sentence may be inaccurate.
+This is currently a *WORK-IN-PROGRESS*, everything below this sentence may be inaccurate.
 
 The credit for the overall structure and the tests goes to the people that wrote the [coffee-rails](https://github.com/rails/coffee-rails) Gem, since I shamelessly copy&pasted some of their code.
 
