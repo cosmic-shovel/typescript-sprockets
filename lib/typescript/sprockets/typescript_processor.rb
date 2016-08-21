@@ -38,7 +38,7 @@ module Typescript
           # Why don't we just use gsub? Because it display odd behavior with File.join on Ruby 2.0
           # So we go the long way around.
           (source.each_line.map do |l|
-             if l.starts_with?('///') && !(m = %r!^///\s*<reference\s+path=(?:"([^"]+)"|'([^']+)')\s*/>\s*!.match(l)).nil?
+             if l.start_with?('///') && !(m = %r!^///\s*<reference\s+path=(?:"([^"]+)"|'([^']+)')\s*/>\s*!.match(l)).nil?
                matched_path = m.captures.compact[0]
                l = l.sub(matched_path, File.join(escaped_dir, matched_path))
              end
@@ -55,7 +55,7 @@ module Typescript
           visited_paths << path
           source ||= File.read(path)
           source.each_line do |l|
-            if l.starts_with?('///') && !(m = %r!^///\s*<reference\s+path=(?:"([^"]+)"|'([^']+)')\s*/>\s*!.match(l)).nil?
+            if l.start_with?('///') && !(m = %r!^///\s*<reference\s+path=(?:"([^"]+)"|'([^']+)')\s*/>\s*!.match(l)).nil?
               matched_path = m.captures.compact[0]
               abs_matched_path = File.expand_path(matched_path, File.dirname(path))
               unless visited_paths.include? abs_matched_path
