@@ -17,7 +17,7 @@ installed on the system.
 
 Add this line to your application's Gemfile:
 
-    gem 'typescript-sprockets', 'git: 'https://github.com/preetpalS/typescript-sprockets.git', tag: '0.0.10', require: 'typescript-sprockets'
+    gem 'typescript-sprockets', 'git: 'https://github.com/preetpalS/typescript-sprockets.git', tag: '0.0.11', require: 'typescript-sprockets'
 
 And then execute:
 
@@ -43,6 +43,10 @@ Typescript::Sprockets::TypescriptProcess.options(compiler_flags: ['--removeComme
 ## Referenced TypeScript dependencies
 
 `typescript-rails` recurses through all [TypeScript-style](https://github.com/teppeis/typescript-spec-md/blob/master/en/ch11.md#1111-source-files-dependencies) referenced files and tells its [`Sprockets::Context`](https://github.com/sstephenson/sprockets/blob/master/lib/sprockets/context.rb) that the TS file being processed [`depend`s`_on`](https://github.com/sstephenson/sprockets#the-depend_on-directive) each file listed as a reference. This activates Sprocket’s cache-invalidation behavior when any of the descendant references of the root TS file is changed.
+
+Support for Sprockets lookup paths for TypeScript import statements (e.g. `import * as package from "packages"`) is not supported/planned (this might not be feasible to support because of ambient module declarations).
+Therefore, Sprocket's cache invalidation will not work for TypeScript import statements. Note that this library creates temporary preprocessed (with all relative references in `/// <reference ... />` replaced with absolute file references) versions of your TypeScript
+files within their parent directory so that TypeScript import statements will work for local references (ambient module declarations should also work).
 
 ## Contributing
 

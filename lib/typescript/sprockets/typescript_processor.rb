@@ -1,6 +1,8 @@
 
 # Standard Library References
 require 'open3'
+require 'pathname'
+require 'securerandom'
 require 'tmpdir'
 
 module Typescript
@@ -78,16 +80,22 @@ module Typescript
           end
 
           Dir.mktmpdir do |tmpdir|
-            tmpfile = "#{tmpdir}/out"
-            tmpfile2 = "#{tmpdir}/in.ts"
+            # Writing to a tempfile within directory of TypeScript file so that TypeScript import statements work for local files.
+            # Support for Sprockets lookup paths for TypeScript import statements (e.g. `import * as Package from "packages"`) is not currently supported/planned.
+            filename_without_ext_or_dir = "#{SecureRandom.hex(16)}.typescript-sprockets"
+            tmpfile2 = "#{Pathname.new(ts_path).parent}/#{filename_without_ext_or_dir}.ts"
             s = replace_relative_references(ts_path, source)
-            File.write(tmpfile2, s)
-            stdout_str, stderr_str, status = Open3.capture3 "#{@@options[:compiler_command]} #{@@options[:compiler_flags].join ' '} --outFile #{tmpfile} #{tmpfile2}"
+            begin
+              File.write(tmpfile2, s)
+              stdout_str, stderr_str, status = Open3.capture3 "#{@@options[:compiler_command]} #{@@options[:compiler_flags].join ' '} --outDir #{tmpdir}/tscout #{tmpfile2}"
 
-            if status.success?
-              return { data: File.read(tmpfile) }
-            else
-              fail "TypeScript error in '#{input[:filename]}': #{stderr_str}\n\n#{stdout_str}"
+              if status.success?
+                return { data: File.read("#{tmpdir}/tscout/#{filename_without_ext_or_dir}.js") }
+              else
+                fail "TypeScript error in '#{input[:filename]}': #{stderr_str}\n\n#{stdout_str}"
+              end
+            ensure
+              File.delete(tmpfile2) if File.exist?(tmpfile2)
             end
           end
         end
