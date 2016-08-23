@@ -109,7 +109,6 @@ module Typescript
           source.each_line do |l|
             if l.start_with?('///') && !(m = %r!^///\s*<reference\s+path=(?:"([^"]+)"|'([^']+)')\s*/>\s*!.match(l)).nil?
               matched_path = m.captures.compact[0]
-              fail matched_path
               if matched_path.start_with? '.'
                 abs_matched_path = File.expand_path(matched_path, File.dirname(path))
               else
