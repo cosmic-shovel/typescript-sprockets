@@ -69,7 +69,7 @@ module Typescript
                if matched_path.start_with? '.'
                  abs_path = File.join(escaped_dir, matched_path)
                else
-                 abs_path = URI.parse(context.resolve(matched_path)).path
+                 abs_path = Pathname.new(URI.parse(context.resolve(matched_path)).path).realpath
                end
 
                l = l.sub(matched_path, abs_path)
@@ -109,10 +109,11 @@ module Typescript
           source.each_line do |l|
             if l.start_with?('///') && !(m = %r!^///\s*<reference\s+path=(?:"([^"]+)"|'([^']+)')\s*/>\s*!.match(l)).nil?
               matched_path = m.captures.compact[0]
+              fail matched_path
               if matched_path.start_with? '.'
                 abs_matched_path = File.expand_path(matched_path, File.dirname(path))
               else
-                abs_matched_path = URI.parse(context.resolve(matched_path)).path
+                abs_matched_path = Pathname.new(URI.parse(context.resolve(matched_path)).path).realpath
               end
 
               unless visited_paths.include? abs_matched_path
@@ -155,7 +156,6 @@ module Typescript
 
             begin
               File.write(tmpfile2, s)
-              fail [s].inspect
               stdout_str, stderr_str, status = Open3.capture3 "#{@@options[:compiler_command]} #{@@options[:compiler_flags].join ' '} --outDir #{tmpdir} #{tmpfile2}"
 
               if status.success?
