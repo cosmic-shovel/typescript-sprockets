@@ -1,12 +1,12 @@
 # TypeScript-Sprockets
 
-Please note that this is currently a *WORK-IN-PROGRESS*.
+Extends Sprockets to work with TypeScript (this library is a fork of [typescript-rails](typescript-ruby/typeScript-rails)) without Rails. This should make it possible to use TypeScript with [middleman-sprockets](https://github.com/middleman/middleman-sprockets) and/or [blade](https://github.com/javan/blade).
 
-Extends Sprockets to work with TypeScript (fork of [typescript-rails](typescript-ruby/typeScript-rails)) without Rails. This should make it possible to use TypeScript with [middleman-sprockets](https://github.com/middleman/middleman-sprockets) and/or [blade](https://github.com/javan/blade).
+This gem assumes you are installing TypeScript locally with npm (although you can alter the `compiler_command` in the library options).
 
-This gem assumes you are installing TypeScript locally with npm.
-
-The credit for the overall structure and the tests goes to the people that wrote the [typescript-rails](https://github.com/typescript-ruby/typescript-rails) Gem, since I shamelessly copy&pasted some of their code.
+Please read the source code if you are planning on using this library (mainly `lib/typescript/sprockets/typescript_processor.rb`) as
+it is very short and contribute by creating issues for any problems that you encounter and by making pull requests for documentation
+and/or bug fixes.
 
 ## Requirements
 
@@ -37,7 +37,14 @@ Configurations:
 
 ```
 # Its defaults are `['--removeComments', '--noImplicitAny', '--noEmitOnError']`.
-::Typescript::Sprockets::TypescriptProcessor.options(compiler_flags: ['--removeComments', '--noImplicitAny', '--noEmitOnError'], compiler_command: 'node node_modules/typescript/bin/tsc')
+::Typescript::Sprockets::TypescriptProcessor.options(
+    compiler_flags: ['--noImplicitAny', '--noEmitOnError'],
+    compiler_command: 'node node_modules/typescript/bin/tsc',
+    compilation_system_command_generator: ->(options, outdir, source_file_path) { # @@options is passed in as an argument
+        "#{options[:compiler_command]} #{options[:compiler_flags].join ' '} --outDir #{outdir} #{source_file_path}"
+    },
+    search_sprockets_load_paths_for_references: true
+)
 ```
 
 ## Referenced TypeScript dependencies

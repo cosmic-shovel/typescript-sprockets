@@ -9,12 +9,29 @@ require 'uri'
 
 module Typescript
   module Sprockets
+    # Intended to support Sprockets 2, 3 and 4 (only tested against Sprockets 3.7+ interface during initial development)
     class TypescriptProcessor
       @@options = {
-        compiler_flags: ['--removeComments', '--noImplicitAny', '--noEmitOnError'],
+        compiler_flags: ['--noImplicitAny', '--noEmitOnError'],
         compiler_command: 'node node_modules/typescript/bin/tsc',
+        compilation_system_command_generator: ->(options, outdir, source_file_path) { # @@options is passed in as an argument
+          "#{options[:compiler_command]} #{options[:compiler_flags].join ' '} --outDir #{outdir} #{source_file_path}"
+        },
         search_sprockets_load_paths_for_references: true
       }
+
+      # Taken from: https://github.com/rails/sprockets/blob/master/guides/extending_sprockets.md#supporting-all-versions-of-sprockets-in-processors
+      # The library also uses the MIT license.
+      def initialize(filename, &block)
+        @filename = filename
+        @source   = block.call
+      end
+
+      # Taken from: https://github.com/rails/sprockets/blob/master/guides/extending_sprockets.md#supporting-all-versions-of-sprockets-in-processors
+      # The library also uses the MIT license.
+      def render(context, empty_hash_wtf)
+        self.class.run(@filename, @source, context)
+      end
 
       class << self
         def options(options = {})
@@ -123,11 +140,11 @@ module Typescript
           end
         end
 
-        # @param [String] ts_path
+        # @param [String] ts_path (filename)
         # @param [String] source TypeScript source code
         # @param [Sprockets::Context] sprockets context object
         # @return [String] compiled JavaScript source code
-        def compile(ts_path, source, context=nil, input)
+        def run(ts_path, source, context=nil)
           if context
             if @@options[:search_sprockets_load_paths_for_references]
               get_all_reference_paths2(File.expand_path(ts_path), source, context) do |abs_path|
@@ -145,7 +162,7 @@ module Typescript
             # Support for Sprockets lookup paths for TypeScript import statements (e.g. `import * as Package from "packages"`) is not currently supported/planned.
             filename_without_ext_or_dir = "#{SecureRandom.hex(16)}.typescript-sprockets"
             tmpfile2 = File.join("#{Pathname.new(ts_path).parent}", "#{filename_without_ext_or_dir}.ts")
-            tmpfile2_out = File.join(tmpdir, "#{filename_without_ext_or_dir}.js")
+            tmpfile2_out = File.join(tmpdir, "#{filename_without_ext_or_dir}.js") # Only for debugging errors
 
             s = ''
             if @@options[:search_sprockets_load_paths_for_references] && context
@@ -156,21 +173,21 @@ module Typescript
 
             begin
               File.write(tmpfile2, s)
-              cmd = "#{@@options[:compiler_command]} #{@@options[:compiler_flags].join ' '} --outDir #{tmpdir} #{tmpfile2}"
+              cmd = @@options[:compilation_system_command_generator].call(@@options, tmpdir, tmpfile2)
               stdout_str, stderr_str, status = Open3.capture3 cmd
 
               if status.success?
-                searched_paths = []
+                searched_paths = [] # Only for debugging errors.
                 Find.find(tmpdir) do |path|
                   pn = Pathname.new(path)
-                  searched_paths.push path
-                  searched_paths.push pn.inspect
+                  searched_paths.push path # Only for debugging errors.
+                  searched_paths.push pn.inspect # Only for debugging errors.
                   if pn.file? && (pn.realpath.basename.to_s == "#{filename_without_ext_or_dir}.js")
-                    return { data: File.read(pn) }
+                    return File.read(pn)
                   end
                 end
 
-                fail <<ERROR
+                fail <<ERROR_MESSAGE
 typescript-sprockets ERROR: Could not find compiled file, how embarassing...
 
 Was compiling the file #{ts_path}.
@@ -178,7 +195,7 @@ This was the command executed on command line: #{cmd}
 Failed reading the output file (which was: #{tmpfile2_out}) from the command.
 
 Searched paths: #{searched_paths.inspect}
-ERROR
+ERROR_MESSAGE
               else
                 fail "TypeScript error in '#{ts_path}': #{stderr_str}\n\n#{stdout_str}"
               end
@@ -193,7 +210,8 @@ ERROR
           ts_path = input[:filename]
           context = input[:environment].context_class.new(input)
 
-          compile(ts_path, source, context, input)
+          result = run(ts_path, source, context)
+          context.metadata.merge(data: result)
         end
       end
     end
