@@ -93,7 +93,7 @@ module Typescript
               if status.success?
                 Find.find(tmpdir) do |path|
                   pn = Pathname.new(path)
-                  if pn.file? && (pn.realpath.basename.to_s == "#{filename_without_ext_or_dir}")
+                  if pn.file? && (pn.realpath.basename.to_s == "#{filename_without_ext_or_dir}.js")
                     return { data: File.read(pn.realpath) }
                   end
                 end
