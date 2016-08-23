@@ -69,7 +69,7 @@ module Typescript
                if matched_path.start_with? '.'
                  abs_path = File.join(escaped_dir, matched_path)
                else
-                 abs_path = Pathname.new(URI.parse(context.resolve(matched_path)).path).realpath.to_s
+                 abs_path = File.expand_path(URI.parse(context.resolve(matched_path)).path)
                end
 
                l = l.sub(matched_path, abs_path)
@@ -112,7 +112,7 @@ module Typescript
               if matched_path.start_with? '.'
                 abs_matched_path = File.expand_path(matched_path, File.dirname(path))
               else
-                abs_matched_path = Pathname.new(URI.parse(context.resolve(matched_path)).path).realpath.to_s
+                abs_matched_path = File.expand_path(URI.parse(context.resolve(matched_path)).path)
               end
 
               unless visited_paths.include? abs_matched_path
@@ -145,6 +145,7 @@ module Typescript
             # Support for Sprockets lookup paths for TypeScript import statements (e.g. `import * as Package from "packages"`) is not currently supported/planned.
             filename_without_ext_or_dir = "#{SecureRandom.hex(16)}.typescript-sprockets"
             tmpfile2 = File.join("#{Pathname.new(ts_path).parent}", "#{filename_without_ext_or_dir}.ts")
+            tmpfile2_out = File.join(tmpdir, "#{filename_without_ext_or_dir}.js")
 
             s = ''
             if @@options[:search_sprockets_load_paths_for_references] && context
@@ -155,16 +156,29 @@ module Typescript
 
             begin
               File.write(tmpfile2, s)
-              stdout_str, stderr_str, status = Open3.capture3 "#{@@options[:compiler_command]} #{@@options[:compiler_flags].join ' '} --outDir #{tmpdir} #{tmpfile2}"
+              cmd = "#{@@options[:compiler_command]} #{@@options[:compiler_flags].join ' '} --outDir #{tmpdir} #{tmpfile2}"
+              stdout_str, stderr_str, status = Open3.capture3 cmd
 
               if status.success?
+                searched_paths = []
                 Find.find(tmpdir) do |path|
                   pn = Pathname.new(path)
+                  searched_paths.push path
+                  searched_paths.push pn.inspect
                   if pn.file? && (pn.realpath.basename.to_s == "#{filename_without_ext_or_dir}.js")
-                    return { data: File.read(pn.realpath) }
+                    return { data: File.read(pn) }
                   end
                 end
-                fail "typescript-sprockets ERROR: Could not find compiled file, how embarassing..."
+
+                fail <<ERROR
+typescript-sprockets ERROR: Could not find compiled file, how embarassing...
+
+Was compiling the file #{ts_path}.
+This was the command executed on command line: #{cmd}
+Failed reading the output file (which was: #{tmpfile2_out}) from the command.
+
+Searched paths: #{searched_paths.inspect}
+ERROR
               else
                 fail "TypeScript error in '#{ts_path}': #{stderr_str}\n\n#{stdout_str}"
               end
