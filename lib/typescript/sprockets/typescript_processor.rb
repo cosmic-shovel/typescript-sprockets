@@ -1,5 +1,6 @@
 
 # Standard Library References
+require 'find'
 require 'open3'
 require 'pathname'
 require 'securerandom'
