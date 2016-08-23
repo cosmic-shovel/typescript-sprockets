@@ -17,7 +17,7 @@ installed on the system.
 
 Add this line to your application's Gemfile:
 
-    gem 'typescript-sprockets', 'git: 'https://github.com/preetpalS/typescript-sprockets.git', tag: '0.0.11', require: 'typescript-sprockets'
+    gem 'typescript-sprockets', 'git: 'https://github.com/preetpalS/typescript-sprockets.git', tag: 'LATEST VERSION TAG', require: 'typescript-sprockets'
 
 And then execute:
 

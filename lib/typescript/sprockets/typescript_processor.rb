@@ -87,10 +87,10 @@ module Typescript
             s = replace_relative_references(ts_path, source)
             begin
               File.write(tmpfile2, s)
-              stdout_str, stderr_str, status = Open3.capture3 "#{@@options[:compiler_command]} #{@@options[:compiler_flags].join ' '} --outDir #{tmpdir}/tscout #{tmpfile2}"
+              stdout_str, stderr_str, status = Open3.capture3 "#{@@options[:compiler_command]} #{@@options[:compiler_flags].join ' '} --outDir #{tmpdir} #{tmpfile2}"
 
               if status.success?
-                return { data: File.read("#{tmpdir}/tscout/#{filename_without_ext_or_dir}.js") }
+                return { data: File.read("#{tmpdir}/#{filename_without_ext_or_dir}.js") }
               else
                 fail "TypeScript error in '#{input[:filename]}': #{stderr_str}\n\n#{stdout_str}"
               end
