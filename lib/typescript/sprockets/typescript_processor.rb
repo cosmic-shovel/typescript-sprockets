@@ -90,7 +90,13 @@ module Typescript
               stdout_str, stderr_str, status = Open3.capture3 "#{@@options[:compiler_command]} #{@@options[:compiler_flags].join ' '} --outDir #{tmpdir} #{tmpfile2}"
 
               if status.success?
-                return { data: File.read("#{tmpdir}/#{filename_without_ext_or_dir}.js") }
+                Find.find(tmpdir) do |path|
+                  pn = Pathname.new(path)
+                  if pn.file? && (pn.realpath.basename.to_s == "#{filename_without_ext_or_dir}")
+                    return { data: File.read(pn.realpath) }
+                  end
+                end
+                fail "typescript-sprockets ERROR: Could not find compiled file, how embarassing..."
               else
                 fail "TypeScript error in '#{input[:filename]}': #{stderr_str}\n\n#{stdout_str}"
               end
