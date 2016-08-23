@@ -69,7 +69,7 @@ module Typescript
                if matched_path.start_with? '.'
                  abs_path = File.join(escaped_dir, matched_path)
                else
-                 abs_path = Pathname.new(URI.parse(context.resolve(matched_path)).path).realpath
+                 abs_path = Pathname.new(URI.parse(context.resolve(matched_path)).path).realpath.to_s
                end
 
                l = l.sub(matched_path, abs_path)
@@ -112,7 +112,7 @@ module Typescript
               if matched_path.start_with? '.'
                 abs_matched_path = File.expand_path(matched_path, File.dirname(path))
               else
-                abs_matched_path = Pathname.new(URI.parse(context.resolve(matched_path)).path).realpath
+                abs_matched_path = Pathname.new(URI.parse(context.resolve(matched_path)).path).realpath.to_s
               end
 
               unless visited_paths.include? abs_matched_path
