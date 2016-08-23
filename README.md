@@ -37,7 +37,7 @@ Configurations:
 
 ```
 # Its defaults are `['--removeComments', '--noImplicitAny', '--noEmitOnError']`.
-Typescript::Sprockets::TypescriptProcess.options(compiler_flags: ['--removeComments', '--noImplicitAny', '--noEmitOnError'], compiler_command: 'node node_modules/typescript/bin/tsc')
+::Typescript::Sprockets::TypescriptProcessor.options(compiler_flags: ['--removeComments', '--noImplicitAny', '--noEmitOnError'], compiler_command: 'node node_modules/typescript/bin/tsc')
 ```
 
 ## Referenced TypeScript dependencies
