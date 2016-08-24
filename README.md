@@ -1,6 +1,7 @@
 # TypeScript-Sprockets
 
-Extends Sprockets to work with TypeScript (this library is a fork of [typescript-rails](typescript-ruby/typeScript-rails)) without Rails. This should make it possible to use TypeScript with [middleman-sprockets](https://github.com/middleman/middleman-sprockets) and/or [blade](https://github.com/javan/blade).
+Extends Sprockets to work with TypeScript (this library is a fork of [typescript-rails](typescript-ruby/typeScript-rails)) without Rails. This should make it possible to use TypeScript with [middleman-sprockets](https://github.com/middleman/middleman-sprockets) and/or [blade](https://github.com/javan/blade). The library has experimental support for compiling TSX files (see TypeScript's support for JSX (note that the compiler flag `--jsx react` is currently not supported currently); please let me know if you using this library's JSX
+support as it will significantly increase the likelihood of this feature being improved/supported instead of being potentially removed in the future).
 
 This gem assumes you are installing TypeScript locally with npm (although you can alter the `compiler_command` in the library options).
 
@@ -38,11 +39,14 @@ Configurations:
 ```
 # Its defaults are `['--removeComments', '--noImplicitAny', '--noEmitOnError']`.
 ::Typescript::Sprockets::TypescriptProcessor.options(
-    compiler_flags: ['--noImplicitAny', '--noEmitOnError'],
     compiler_command: 'node node_modules/typescript/bin/tsc',
-    compilation_system_command_generator: ->(options, outdir, source_file_path) { # @@options is passed in as an argument
-        "#{options[:compiler_command]} #{options[:compiler_flags].join ' '} --outDir #{outdir} #{source_file_path}"
+    compiler_flags: ['--noImplicitAny', '--noEmitOnError'],
+    jsx_compiler_flags: ['--noImplicitAny', '--noEmitOnError', '--jsx preserve'],
+    compilation_system_command_generator: ->(options, outdir, source_file_path, support_jsx) { # @@options is passed in as an argument
+        "#{options[:compiler_command]} #{(support_jsx ? options[:jsx_compiler_flags] : options[:compiler_flags]).join ' '} --outDir #{outdir} #{source_file_path}"
     },
+    extensions: ['.js.ts', '.ts'],
+    jsx_extensions: ['.js.tsx', '.tsx'],
     search_sprockets_load_paths_for_references: true
 )
 ```

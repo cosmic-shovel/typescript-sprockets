@@ -12,11 +12,14 @@ module Typescript
     # Intended to support Sprockets 2, 3 and 4 (only tested against Sprockets 3.7+ interface during initial development)
     class TypescriptProcessor
       @@options = {
-        compiler_flags: ['--noImplicitAny', '--noEmitOnError'],
         compiler_command: 'node node_modules/typescript/bin/tsc',
-        compilation_system_command_generator: ->(options, outdir, source_file_path) { # @@options is passed in as an argument
-          "#{options[:compiler_command]} #{options[:compiler_flags].join ' '} --outDir #{outdir} #{source_file_path}"
+        compiler_flags: ['--noImplicitAny', '--noEmitOnError'],
+        jsx_compiler_flags: ['--noImplicitAny', '--noEmitOnError', '--jsx preserve'],
+        compilation_system_command_generator: ->(options, outdir, source_file_path, support_jsx) { # @@options is passed in as an argument
+          "#{options[:compiler_command]} #{(support_jsx ? options[:jsx_compiler_flags] : options[:compiler_flags]).join ' '} --outDir #{outdir} #{source_file_path}"
         },
+        extensions: ['.js.ts', '.ts'],
+        jsx_extensions: ['.js.tsx', '.tsx'],
         search_sprockets_load_paths_for_references: true
       }
 
@@ -41,10 +44,12 @@ module Typescript
         def register
           if ::Sprockets.respond_to? :register_transformer
             ::Sprockets.register_transformer 'text/typescript', 'application/javascript', ::Typescript::Sprockets::TypescriptProcessor
+            ::Sprockets.register_transformer 'text/tsx', 'application/jsx', ::Typescript::Sprockets::TypescriptProcessor
           end
 
           if ::Sprockets.respond_to? :register_mime_type
-            ::Sprockets.register_mime_type 'text/typescript', extensions: ['.js.ts']
+            ::Sprockets.register_mime_type 'text/typescript', extensions: @@options[:extensions]
+            ::Sprockets.register_mime_type 'text/tsx', extensions: @@options[:jsx_extensions]
           end
         end
 
@@ -157,12 +162,13 @@ module Typescript
             end
           end
 
+          support_jsx = ts_path.end_with?('tsx')
           Dir.mktmpdir do |tmpdir|
             # Writing to a tempfile within directory of TypeScript file so that TypeScript import statements work for local files.
             # Support for Sprockets lookup paths for TypeScript import statements (e.g. `import * as Package from "packages"`) is not currently supported/planned.
             filename_without_ext_or_dir = "#{SecureRandom.hex(16)}.typescript-sprockets"
-            tmpfile2 = File.join("#{Pathname.new(ts_path).parent}", "#{filename_without_ext_or_dir}.ts")
-            tmpfile2_out = File.join(tmpdir, "#{filename_without_ext_or_dir}.js") # Only for debugging errors
+            tmpfile2 = File.join("#{Pathname.new(ts_path).parent}", "#{filename_without_ext_or_dir}.ts#{'x' if support_jsx}")
+            tmpfile2_out = File.join(tmpdir, "#{filename_without_ext_or_dir}.js#{'x' if support_jsx}") # Only for debugging errors
 
             s = ''
             if @@options[:search_sprockets_load_paths_for_references] && context
@@ -182,7 +188,7 @@ module Typescript
                   pn = Pathname.new(path)
                   searched_paths.push path # Only for debugging errors.
                   searched_paths.push pn.inspect # Only for debugging errors.
-                  if pn.file? && (pn.realpath.basename.to_s == "#{filename_without_ext_or_dir}.js")
+                  if pn.file? && (pn.realpath.basename.to_s == "#{filename_without_ext_or_dir}.js#{'x' if support_jsx}")
                     return File.read(pn)
                   end
                 end
