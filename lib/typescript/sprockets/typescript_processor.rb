@@ -168,7 +168,7 @@ module Typescript
             # Support for Sprockets lookup paths for TypeScript import statements (e.g. `import * as Package from "packages"`) is not currently supported/planned.
             filename_without_ext_or_dir = "#{SecureRandom.hex(16)}.typescript-sprockets"
             tmpfile2 = File.join("#{Pathname.new(ts_path).parent}", "#{filename_without_ext_or_dir}.ts#{'x' if support_jsx}")
-            tmpfile2_out = File.join(tmpdir, "#{filename_without_ext_or_dir}.js#{'x' if support_jsx}") # Only for debugging errors
+            tmpfile2_out = File.join(tmpdir, "#{filename_without_ext_or_dir}.js#{'x' if support_jsx}")
 
             s = ''
             if @@options[:search_sprockets_load_paths_for_references] && context
@@ -207,6 +207,7 @@ ERROR_MESSAGE
               end
             ensure
               File.delete(tmpfile2) if File.exist?(tmpfile2)
+              File.delete(tmpfile2_out) if File.exist?(tmpfile2_out)
             end
           end
         end
