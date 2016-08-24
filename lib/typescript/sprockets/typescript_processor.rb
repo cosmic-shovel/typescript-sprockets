@@ -179,7 +179,7 @@ module Typescript
 
             begin
               File.write(tmpfile2, s)
-              cmd = @@options[:compilation_system_command_generator].call(@@options, tmpdir, tmpfile2)
+              cmd = @@options[:compilation_system_command_generator].call(@@options, tmpdir, tmpfile2, support_jsx)
               stdout_str, stderr_str, status = Open3.capture3 cmd
 
               if status.success?
