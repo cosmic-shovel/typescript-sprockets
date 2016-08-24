@@ -37,7 +37,6 @@ Then just add a `.js.ts` file in your `app/assets/javascripts` directory and inc
 Configurations:
 
 ```
-# Its defaults are `['--removeComments', '--noImplicitAny', '--noEmitOnError']`.
 ::Typescript::Sprockets::TypescriptProcessor.options(
     compiler_command: 'node node_modules/typescript/bin/tsc',
     compiler_flags: ['--noImplicitAny', '--noEmitOnError'],
