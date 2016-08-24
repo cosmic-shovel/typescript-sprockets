@@ -43,13 +43,22 @@ module Typescript
 
         def register
           if ::Sprockets.respond_to? :register_transformer
+
+            # Typescript/TSX -> JavaScript/JSX
             ::Sprockets.register_transformer 'text/typescript', 'application/javascript', ::Typescript::Sprockets::TypescriptProcessor
             ::Sprockets.register_transformer 'text/tsx', 'application/jsx', ::Typescript::Sprockets::TypescriptProcessor
+
+            # ERB -> TypeScript/TSX
+            ::Sprockets.register_transformer 'application/typescript+ruby', 'text/typescript', ::Sprockets::ERBProcessor
+            ::Sprockets.register_transformer 'application/tsx+ruby', 'text/tsx', ::Sprockets::ERBProcessor
           end
 
           if ::Sprockets.respond_to? :register_mime_type
             ::Sprockets.register_mime_type 'text/typescript', extensions: @@options[:extensions]
             ::Sprockets.register_mime_type 'text/tsx', extensions: @@options[:jsx_extensions]
+
+            ::Sprockets.register_mime_type 'application/typescript+ruby', extensions: @@options[:extensions].map { |ext| "#{ext}.erb" }
+            ::Sprockets.register_mime_type 'application/tsx+ruby', extensions: @@options[:jsx_extensions].map { |ext| "#{ext}.erb" }
           end
         end
 
