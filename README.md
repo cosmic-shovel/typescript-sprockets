@@ -39,14 +39,34 @@ Configurations:
 ```
 ::Typescript::Sprockets::TypescriptProcessor.options(
     compiler_command: 'node node_modules/typescript/bin/tsc',
-    compiler_flags: ['--noImplicitAny', '--noEmitOnError'],
-    jsx_compiler_flags: ['--noImplicitAny', '--noEmitOnError', '--jsx preserve'],
+    compiler_flags: ['--forceConsistentCasingInFileNames',
+                     '--noEmitOnError',
+                     '--noFallthroughCasesInSwitch',
+                     '--noImplicitAny',
+                     '--noImplicitReturns',
+                     '--noImplicitThis',
+                     '--noUnusedParameters',
+                     '--noUnusedLocals',
+                     '--strictNullChecks'
+                    ],
+    jsx_compiler_flags: ['--forceConsistentCasingInFileNames',
+                         '--noEmitOnError',
+                         '--noFallthroughCasesInSwitch',
+                         '--noImplicitAny',
+                         '--noImplicitReturns',
+                         '--noImplicitThis',
+                         '--noUnusedParameters',
+                         '--noUnusedLocals',
+                         '--strictNullChecks',
+                         '--jsx preserve'
+                        ],
     compilation_system_command_generator: ->(options, outdir, source_file_path, support_jsx) { # @@options is passed in as an argument
-        "#{options[:compiler_command]} #{(support_jsx ? options[:jsx_compiler_flags] : options[:compiler_flags]).join ' '} --outDir #{outdir} #{source_file_path}"
+      "#{options[:compiler_command]} #{(support_jsx ? options[:jsx_compiler_flags] : options[:compiler_flags]).join ' '} --outDir #{outdir} #{source_file_path}"
     },
     extensions: ['.js.ts', '.ts'],
     jsx_extensions: ['.js.tsx', '.tsx'],
-    search_sprockets_load_paths_for_references: true
+    search_sprockets_load_paths_for_references: true,
+    logging: true
 )
 ```
 

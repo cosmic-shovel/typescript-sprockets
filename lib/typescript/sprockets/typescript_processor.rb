@@ -13,14 +13,34 @@ module Typescript
     class TypescriptProcessor
       @@options = {
         compiler_command: 'node node_modules/typescript/bin/tsc',
-        compiler_flags: ['--noImplicitAny', '--noEmitOnError'],
-        jsx_compiler_flags: ['--noImplicitAny', '--noEmitOnError', '--jsx preserve'],
+        compiler_flags: ['--forceConsistentCasingInFileNames',
+                         '--noEmitOnError',
+                         '--noFallthroughCasesInSwitch',
+                         '--noImplicitAny',
+                         '--noImplicitReturns',
+                         '--noImplicitThis',
+                         '--noUnusedParameters',
+                         '--noUnusedLocals',
+                         '--strictNullChecks'
+                        ],
+        jsx_compiler_flags: ['--forceConsistentCasingInFileNames',
+                             '--noEmitOnError',
+                             '--noFallthroughCasesInSwitch',
+                             '--noImplicitAny',
+                             '--noImplicitReturns',
+                             '--noImplicitThis',
+                             '--noUnusedParameters',
+                             '--noUnusedLocals',
+                             '--strictNullChecks',
+                             '--jsx preserve'
+                            ],
         compilation_system_command_generator: ->(options, outdir, source_file_path, support_jsx) { # @@options is passed in as an argument
           "#{options[:compiler_command]} #{(support_jsx ? options[:jsx_compiler_flags] : options[:compiler_flags]).join ' '} --outDir #{outdir} #{source_file_path}"
         },
         extensions: ['.js.ts', '.ts'],
         jsx_extensions: ['.js.tsx', '.tsx'],
-        search_sprockets_load_paths_for_references: true
+        search_sprockets_load_paths_for_references: true,
+        logging: true
       }
 
       # Taken from: https://github.com/rails/sprockets/blob/master/guides/extending_sprockets.md#supporting-all-versions-of-sprockets-in-processors
@@ -142,8 +162,10 @@ module Typescript
               matched_path = m.captures.compact[0]
               if matched_path.start_with? '.'
                 abs_matched_path = File.expand_path(matched_path, File.dirname(path))
+                puts "Working with relative file reference (#{matched_path}) which resolves to: #{abs_matched_path}" if @@options[:logging]
               else
                 abs_matched_path = File.expand_path(URI.parse(context.resolve(matched_path)).path)
+                puts "Working with absolute file reference (#{matched_path}) which resolves to: #{abs_matched_path}" if @@options[:logging]
               end
 
               unless visited_paths.include? abs_matched_path
@@ -159,6 +181,7 @@ module Typescript
         # @param [Sprockets::Context] sprockets context object
         # @return [String] compiled JavaScript source code
         def run(ts_path, source, context=nil)
+          puts "TypeScript Sprockets is compiling: #{ts_path}" if @@options[:logging]
           if context
             if @@options[:search_sprockets_load_paths_for_references]
               get_all_reference_paths2(File.expand_path(ts_path), source, context) do |abs_path|
