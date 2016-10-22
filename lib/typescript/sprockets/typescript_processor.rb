@@ -34,13 +34,17 @@ module Typescript
                              '--strictNullChecks',
                              '--jsx preserve'
                             ],
-        compilation_system_command_generator: ->(options, outdir, source_file_path, support_jsx) { # @@options is passed in as an argument
-          "#{options[:compiler_command]} #{(support_jsx ? options[:jsx_compiler_flags] : options[:compiler_flags]).join ' '} --outDir #{outdir} #{source_file_path}"
+        compilation_system_command_generator: ->(options, outdir, outfile_location, source_file_path, support_jsx) { # @@options is passed in as an argument
+          outfile_option = (@@options[:use_typescript_outfile_option] ? "--outFile #{outfile_location}" : '')
+          <<CMD
+#{options[:compiler_command]} #{(support_jsx ? options[:jsx_compiler_flags] : options[:compiler_flags]).join ' '} --outDir #{outdir} #{outfile_option} #{source_file_path}
+CMD
         },
         extensions: ['.js.ts', '.ts'],
         jsx_extensions: ['.js.tsx', '.tsx'],
         search_sprockets_load_paths_for_references: true,
-        logging: true
+        logging: true,
+        use_typescript_outfile_option: false
       }
 
       # Taken from: https://github.com/rails/sprockets/blob/master/guides/extending_sprockets.md#supporting-all-versions-of-sprockets-in-processors
@@ -211,7 +215,7 @@ module Typescript
 
             begin
               File.write(tmpfile2, s)
-              cmd = @@options[:compilation_system_command_generator].call(@@options, tmpdir, tmpfile2, support_jsx)
+              cmd = @@options[:compilation_system_command_generator].call(@@options, tmpdir, tmpfile2_out, tmpfile2, support_jsx)
               stdout_str, stderr_str, status = Open3.capture3 cmd
 
               if status.success?
