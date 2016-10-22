@@ -34,7 +34,7 @@ After the sprockets gem (and this gem) is loaded, add the following lines of cod
 
 Then just add a `.js.ts` file in your `app/assets/javascripts` directory and include it just like you are used to do.
 
-Configurations:
+Configurations (only needed to override defaults (which are all listed below)):
 
 ```
 ::Typescript::Sprockets::TypescriptProcessor.options(
@@ -60,13 +60,19 @@ Configurations:
                          '--strictNullChecks',
                          '--jsx preserve'
                         ],
-    compilation_system_command_generator: ->(options, outdir, source_file_path, support_jsx) { # @@options is passed in as an argument
-      "#{options[:compiler_command]} #{(support_jsx ? options[:jsx_compiler_flags] : options[:compiler_flags]).join ' '} --outDir #{outdir} #{source_file_path}"
+    compilation_system_command_generator: ->(options, outdir, outfile_location, source_file_path, support_jsx) { # @@options is passed in as an argument
+      outfile_option = (options[:use_typescript_outfile_option] ? "--outFile #{outfile_location}" : '')
+      cmd = <<CMD
+#{options[:compiler_command]} #{(support_jsx ? options[:jsx_compiler_flags] : options[:compiler_flags]).join ' '} --outDir #{outdir} #{outfile_option} #{source_file_path}
+CMD
+      puts "Running compiler command: #{cmd}" if options[:logging]
+      cmd
     },
     extensions: ['.js.ts', '.ts'],
     jsx_extensions: ['.js.tsx', '.tsx'],
     search_sprockets_load_paths_for_references: true,
-    logging: true
+    logging: true,
+    use_typescript_outfile_option: false
 )
 ```
 
