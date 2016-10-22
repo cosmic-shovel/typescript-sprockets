@@ -35,10 +35,12 @@ module Typescript
                              '--jsx preserve'
                             ],
         compilation_system_command_generator: ->(options, outdir, outfile_location, source_file_path, support_jsx) { # @@options is passed in as an argument
-          outfile_option = (@@options[:use_typescript_outfile_option] ? "--outFile #{outfile_location}" : '')
-          <<CMD
+          outfile_option = (options[:use_typescript_outfile_option] ? "--outFile #{outfile_location}" : '')
+          cmd = <<CMD
 #{options[:compiler_command]} #{(support_jsx ? options[:jsx_compiler_flags] : options[:compiler_flags]).join ' '} --outDir #{outdir} #{outfile_option} #{source_file_path}
 CMD
+          puts "Running compiler command: #{cmd}" if options[:logging]
+          cmd
         },
         extensions: ['.js.ts', '.ts'],
         jsx_extensions: ['.js.tsx', '.tsx'],
