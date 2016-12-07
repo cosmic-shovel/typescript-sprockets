@@ -39,24 +39,30 @@ Configurations (only needed to override defaults (which are all listed below)):
 ```
 ::Typescript::Sprockets::TypescriptProcessor.options(
     compiler_command: 'node node_modules/typescript/bin/tsc',
-    compiler_flags: ['--forceConsistentCasingInFileNames',
+    compiler_flags: ['--alwaysStrict',
+                     '--forceConsistentCasingInFileNames',
+                     '--lib dom es2015.promise es5'
                      '--noEmitOnError',
                      '--noFallthroughCasesInSwitch',
                      '--noImplicitAny',
                      '--noImplicitReturns',
                      '--noImplicitThis',
-                     '--noUnusedParameters',
                      '--noUnusedLocals',
+                     '--noUnusedParameters',
+                     '--preserveConstEnums',
                      '--strictNullChecks'
                     ],
-    jsx_compiler_flags: ['--forceConsistentCasingInFileNames',
+    jsx_compiler_flags: ['--alwaysStrict',
+                         '--forceConsistentCasingInFileNames',
+                         '--lib dom es2015.promise es5'
                          '--noEmitOnError',
                          '--noFallthroughCasesInSwitch',
                          '--noImplicitAny',
                          '--noImplicitReturns',
                          '--noImplicitThis',
-                         '--noUnusedParameters',
                          '--noUnusedLocals',
+                         '--noUnusedParameters',
+                         '--preserveConstEnums',
                          '--strictNullChecks',
                          '--jsx preserve'
                         ],
