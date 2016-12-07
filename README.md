@@ -49,7 +49,6 @@ Configurations (only needed to override defaults (which are all listed below)):
                      '--noImplicitThis',
                      '--noUnusedLocals',
                      '--noUnusedParameters',
-                     '--preserveConstEnums',
                      '--strictNullChecks'
                     ],
     jsx_compiler_flags: ['--alwaysStrict',
@@ -62,7 +61,6 @@ Configurations (only needed to override defaults (which are all listed below)):
                          '--noImplicitThis',
                          '--noUnusedLocals',
                          '--noUnusedParameters',
-                         '--preserveConstEnums',
                          '--strictNullChecks',
                          '--jsx preserve'
                         ],

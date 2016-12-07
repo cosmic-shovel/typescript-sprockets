@@ -23,7 +23,6 @@ module Typescript
                          '--noImplicitThis',
                          '--noUnusedLocals',
                          '--noUnusedParameters',
-                         '--preserveConstEnums',
                          '--strictNullChecks'
                         ],
         jsx_compiler_flags: ['--alwaysStrict',
@@ -36,7 +35,6 @@ module Typescript
                              '--noImplicitThis',
                              '--noUnusedLocals',
                              '--noUnusedParameters',
-                             '--preserveConstEnums',
                              '--strictNullChecks',
                              '--jsx preserve'
                             ],
