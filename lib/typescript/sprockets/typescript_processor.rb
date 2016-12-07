@@ -15,7 +15,7 @@ module Typescript
         compiler_command: 'node node_modules/typescript/bin/tsc',
         compiler_flags: ['--alwaysStrict',
                          '--forceConsistentCasingInFileNames',
-                         '--lib dom es2015.promise es5'
+                         '--lib dom,es2015.promise,es5,scripthost',
                          '--noEmitOnError',
                          '--noFallthroughCasesInSwitch',
                          '--noImplicitAny',
@@ -28,7 +28,7 @@ module Typescript
                         ],
         jsx_compiler_flags: ['--alwaysStrict',
                              '--forceConsistentCasingInFileNames',
-                             '--lib dom es2015.promise es5'
+                             '--lib dom,es2015.promise,es5,scripthost',
                              '--noEmitOnError',
                              '--noFallthroughCasesInSwitch',
                              '--noImplicitAny',

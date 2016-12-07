@@ -41,7 +41,7 @@ Configurations (only needed to override defaults (which are all listed below)):
     compiler_command: 'node node_modules/typescript/bin/tsc',
     compiler_flags: ['--alwaysStrict',
                      '--forceConsistentCasingInFileNames',
-                     '--lib dom es2015.promise es5'
+                     '--lib dom,es2015.promise,es5,scripthost',
                      '--noEmitOnError',
                      '--noFallthroughCasesInSwitch',
                      '--noImplicitAny',
@@ -54,7 +54,7 @@ Configurations (only needed to override defaults (which are all listed below)):
                     ],
     jsx_compiler_flags: ['--alwaysStrict',
                          '--forceConsistentCasingInFileNames',
-                         '--lib dom es2015.promise es5'
+                         '--lib dom,es2015.promise,es5,scripthost',
                          '--noEmitOnError',
                          '--noFallthroughCasesInSwitch',
                          '--noImplicitAny',
