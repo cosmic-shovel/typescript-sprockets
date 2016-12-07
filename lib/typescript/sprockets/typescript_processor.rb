@@ -50,7 +50,7 @@ CMD
         jsx_extensions: ['.js.tsx', '.tsx'],
         search_sprockets_load_paths_for_references: true,
         logging: true,
-        use_typescript_outfile_option: false
+        use_typescript_outfile_option: true
       }
 
       # Taken from: https://github.com/rails/sprockets/blob/master/guides/extending_sprockets.md#supporting-all-versions-of-sprockets-in-processors
