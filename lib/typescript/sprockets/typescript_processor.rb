@@ -1,4 +1,6 @@
 
+# frozen_string_literal: true
+
 # Standard Library References
 require 'find'
 require 'open3'
@@ -14,27 +16,27 @@ module Typescript
       @@options = {
         compiler_command: 'node node_modules/typescript/bin/tsc',
         compiler_flags: (DEFAULT_COMPILER_FLAGS = [
-                           '--allowJs',
-                           '--alwaysStrict',
-                           '--checkJs'
-                           '--forceConsistentCasingInFileNames',
-                           '--inlineSourceMap',
-                           '--inlineSources',
-                           '--lib dom,es2015.promise,es5,scripthost',
-                           '--noEmitOnError',
-                           '--noFallthroughCasesInSwitch',
-                           '--noImplicitAny',
-                           '--noImplicitReturns',
-                           '--noImplicitThis',
-                           '--noUnusedLocals',
-                           '--noUnusedParameters',
-                           '--strictNullChecks'
-                         ]),
+          '--allowJs',
+          '--alwaysStrict',
+          '--checkJs',
+          '--forceConsistentCasingInFileNames',
+          '--inlineSourceMap',
+          '--inlineSources',
+          '--lib dom,es2015.promise,es5,scripthost',
+          '--noEmitOnError',
+          '--noFallthroughCasesInSwitch',
+          '--noImplicitAny',
+          '--noImplicitReturns',
+          '--noImplicitThis',
+          '--noUnusedLocals',
+          '--noUnusedParameters',
+          '--strictNullChecks'
+        ].freeze),
         jsx_compiler_flags: (DEFAULT_JSX_COMPILER_FLAGS = DEFAULT_COMPILER_FLAGS + ['--jsx preserve']),
-        compilation_system_command_generator: ->(options, outdir, outfile_location, source_file_path, support_jsx) { # @@options is passed in as an argument
+        compilation_system_command_generator: lambda { |options, outdir, outfile_location, source_file_path, support_jsx| # @@options is passed in as an argument
           outfile_option = (options[:use_typescript_outfile_option] ? "--outFile #{outfile_location}" : '')
-          cmd = <<CMD
-#{options[:compiler_command]} #{(support_jsx ? options[:jsx_compiler_flags] : options[:compiler_flags]).join ' '} --outDir #{outdir} #{outfile_option} #{source_file_path}
+          cmd = <<~CMD
+            #{options[:compiler_command]} #{(support_jsx ? options[:jsx_compiler_flags] : options[:compiler_flags]).join ' '} --outDir #{outdir} #{outfile_option} #{source_file_path}
 CMD
           puts "Running compiler command: #{cmd}" if options[:logging]
           cmd
@@ -48,14 +50,14 @@ CMD
 
       # Taken from: https://github.com/rails/sprockets/blob/master/guides/extending_sprockets.md#supporting-all-versions-of-sprockets-in-processors
       # The library also uses the MIT license.
-      def initialize(filename, &block)
+      def initialize(filename)
         @filename = filename
-        @source   = block.call
+        @source   = yield
       end
 
       # Taken from: https://github.com/rails/sprockets/blob/master/guides/extending_sprockets.md#supporting-all-versions-of-sprockets-in-processors
       # The library also uses the MIT license.
-      def render(context, empty_hash_wtf)
+      def render(context, _empty_hash_wtf)
         self.class.run(@filename, @source, context)
       end
 
@@ -97,7 +99,7 @@ CMD
           # Why don't we just use gsub? Because it display odd behavior with File.join on Ruby 2.0
           # So we go the long way around.
           (source.each_line.map do |l|
-             if l.start_with?('///') && !(m = %r!^///\s*<reference\s+path=(?:"([^"]+)"|'([^']+)')\s*/>\s*!.match(l)).nil?
+             if l.start_with?('///') && !(m = %r{^///\s*<reference\s+path=(?:"([^"]+)"|'([^']+)')\s*/>\s*}.match(l)).nil?
                matched_path = m.captures.compact[0]
                l = l.sub(matched_path, File.join(escaped_dir, matched_path))
              end
@@ -118,7 +120,7 @@ CMD
           # Why don't we just use gsub? Because it display odd behavior with File.join on Ruby 2.0
           # So we go the long way around.
           (source.each_line.map do |l|
-             if l.start_with?('///') && !(m = %r!^///\s*<reference\s+path=(?:"([^"]+)"|'([^']+)')\s*/>\s*!.match(l)).nil?
+             if l.start_with?('///') && !(m = %r{^///\s*<reference\s+path=(?:"([^"]+)"|'([^']+)')\s*/>\s*}.match(l)).nil?
                matched_path = m.captures.compact[0]
                if matched_path.start_with? '.'
                  abs_path = File.join(escaped_dir, matched_path)
@@ -137,17 +139,16 @@ CMD
         # @param [String] path Source .ts path
         # @param [String] source. It might be pre-processed by erb.
         # @yieldreturn [String] matched ref abs_path
-        def get_all_reference_paths(path, source, visited_paths=Set.new, &block)
+        def get_all_reference_paths(path, source, visited_paths = Set.new, &block)
           visited_paths << path
           source ||= File.read(path)
           source.each_line do |l|
-            if l.start_with?('///') && !(m = %r!^///\s*<reference\s+path=(?:"([^"]+)"|'([^']+)')\s*/>\s*!.match(l)).nil?
-              matched_path = m.captures.compact[0]
-              abs_matched_path = File.expand_path(matched_path, File.dirname(path))
-              unless visited_paths.include? abs_matched_path
-                block.call abs_matched_path
-                get_all_reference_paths(abs_matched_path, nil, visited_paths, &block)
-              end
+            next unless l.start_with?('///') && !(m = %r{^///\s*<reference\s+path=(?:"([^"]+)"|'([^']+)')\s*/>\s*}.match(l)).nil?
+            matched_path = m.captures.compact[0]
+            abs_matched_path = File.expand_path(matched_path, File.dirname(path))
+            unless visited_paths.include? abs_matched_path
+              yield abs_matched_path
+              get_all_reference_paths(abs_matched_path, nil, visited_paths, &block)
             end
           end
         end
@@ -157,24 +158,23 @@ CMD
         # @param [String] path Source .ts path
         # @param [String] source. It might be pre-processed by erb.
         # @yieldreturn [String] matched ref abs_path
-        def get_all_reference_paths2(path, source, context, visited_paths=Set.new, &block)
+        def get_all_reference_paths2(path, source, context, visited_paths = Set.new, &block)
           visited_paths << path
           source ||= File.read(path)
           source.each_line do |l|
-            if l.start_with?('///') && !(m = %r!^///\s*<reference\s+path=(?:"([^"]+)"|'([^']+)')\s*/>\s*!.match(l)).nil?
-              matched_path = m.captures.compact[0]
-              if matched_path.start_with? '.'
-                abs_matched_path = File.expand_path(matched_path, File.dirname(path))
-                puts "Working with relative file reference (#{matched_path}) which resolves to: #{abs_matched_path}" if @@options[:logging]
-              else
-                abs_matched_path = File.expand_path(URI.parse(context.resolve(matched_path)).path)
-                puts "Working with absolute file reference (#{matched_path}) which resolves to: #{abs_matched_path}" if @@options[:logging]
-              end
+            next unless l.start_with?('///') && !(m = %r{^///\s*<reference\s+path=(?:"([^"]+)"|'([^']+)')\s*/>\s*}.match(l)).nil?
+            matched_path = m.captures.compact[0]
+            if matched_path.start_with? '.'
+              abs_matched_path = File.expand_path(matched_path, File.dirname(path))
+              puts "Working with relative file reference (#{matched_path}) which resolves to: #{abs_matched_path}" if @@options[:logging]
+            else
+              abs_matched_path = File.expand_path(URI.parse(context.resolve(matched_path)).path)
+              puts "Working with absolute file reference (#{matched_path}) which resolves to: #{abs_matched_path}" if @@options[:logging]
+            end
 
-              unless visited_paths.include? abs_matched_path
-                block.call abs_matched_path
-                get_all_reference_paths2(abs_matched_path, nil, context, visited_paths, &block)
-              end
+            unless visited_paths.include? abs_matched_path
+              yield abs_matched_path
+              get_all_reference_paths2(abs_matched_path, nil, context, visited_paths, &block)
             end
           end
         end
@@ -183,7 +183,7 @@ CMD
         # @param [String] source TypeScript source code
         # @param [Sprockets::Context] sprockets context object
         # @return [String] compiled JavaScript source code
-        def run(ts_path, source, context=nil)
+        def run(ts_path, source, context = nil)
           puts "TypeScript Sprockets is compiling: #{ts_path}" if @@options[:logging]
           if context
             if @@options[:search_sprockets_load_paths_for_references]
@@ -202,15 +202,15 @@ CMD
             # Writing to a tempfile within directory of TypeScript file so that TypeScript import statements work for local files.
             # Support for Sprockets lookup paths for TypeScript import statements (e.g. `import * as Package from "packages"`) is not currently supported/planned.
             filename_without_ext_or_dir = "#{SecureRandom.hex(16)}.typescript-sprockets"
-            tmpfile2 = File.join("#{Pathname.new(ts_path).parent}", "#{filename_without_ext_or_dir}.ts#{'x' if support_jsx}")
+            tmpfile2 = File.join(Pathname.new(ts_path).parent.to_s, "#{filename_without_ext_or_dir}.ts#{'x' if support_jsx}")
             tmpfile2_out = File.join(tmpdir, "#{filename_without_ext_or_dir}.js#{'x' if support_jsx}")
 
             s = ''
-            if @@options[:search_sprockets_load_paths_for_references] && context
-              s = replace_relative_references2(ts_path, source, context)
-            else
-              s = replace_relative_references(ts_path, source)
-            end
+            s = if @@options[:search_sprockets_load_paths_for_references] && context
+                  replace_relative_references2(ts_path, source, context)
+                else
+                  replace_relative_references(ts_path, source)
+                end
 
             begin
               File.write(tmpfile2, s)
@@ -228,17 +228,17 @@ CMD
                   end
                 end
 
-                fail <<ERROR_MESSAGE
-typescript-sprockets ERROR: Could not find compiled file, how embarassing...
+                raise <<~ERROR_MESSAGE
+                  typescript-sprockets ERROR: Could not find compiled file, how embarassing...
 
-Was compiling the file #{ts_path}.
-This was the command executed on command line: #{cmd}
-Failed reading the output file (which was: #{tmpfile2_out}) from the command.
+                  Was compiling the file #{ts_path}.
+                  This was the command executed on command line: #{cmd}
+                  Failed reading the output file (which was: #{tmpfile2_out}) from the command.
 
-Searched paths: #{searched_paths.inspect}
+                  Searched paths: #{searched_paths.inspect}
 ERROR_MESSAGE
               else
-                fail "TypeScript error in '#{ts_path}': #{stderr_str}\n\n#{stdout_str}"
+                raise "TypeScript error in '#{ts_path}': #{stderr_str}\n\n#{stdout_str}"
               end
             ensure
               File.delete(tmpfile2) if File.exist?(tmpfile2)
