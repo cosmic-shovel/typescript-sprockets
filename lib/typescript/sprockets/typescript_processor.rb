@@ -13,31 +13,24 @@ module Typescript
     class TypescriptProcessor
       @@options = {
         compiler_command: 'node node_modules/typescript/bin/tsc',
-        compiler_flags: ['--alwaysStrict',
-                         '--forceConsistentCasingInFileNames',
-                         '--lib dom,es2015.promise,es5,scripthost',
-                         '--noEmitOnError',
-                         '--noFallthroughCasesInSwitch',
-                         '--noImplicitAny',
-                         '--noImplicitReturns',
-                         '--noImplicitThis',
-                         '--noUnusedLocals',
-                         '--noUnusedParameters',
-                         '--strictNullChecks'
-                        ],
-        jsx_compiler_flags: ['--alwaysStrict',
-                             '--forceConsistentCasingInFileNames',
-                             '--lib dom,es2015.promise,es5,scripthost',
-                             '--noEmitOnError',
-                             '--noFallthroughCasesInSwitch',
-                             '--noImplicitAny',
-                             '--noImplicitReturns',
-                             '--noImplicitThis',
-                             '--noUnusedLocals',
-                             '--noUnusedParameters',
-                             '--strictNullChecks',
-                             '--jsx preserve'
-                            ],
+        compiler_flags: (DEFAULT_COMPILER_FLAGS = [
+                           '--allowJs',
+                           '--alwaysStrict',
+                           '--checkJs'
+                           '--forceConsistentCasingInFileNames',
+                           '--inlineSourceMap',
+                           '--inlineSources',
+                           '--lib dom,es2015.promise,es5,scripthost',
+                           '--noEmitOnError',
+                           '--noFallthroughCasesInSwitch',
+                           '--noImplicitAny',
+                           '--noImplicitReturns',
+                           '--noImplicitThis',
+                           '--noUnusedLocals',
+                           '--noUnusedParameters',
+                           '--strictNullChecks'
+                         ]),
+        jsx_compiler_flags: (DEFAULT_JSX_COMPILER_FLAGS = DEFAULT_COMPILER_FLAGS + ['--jsx preserve']),
         compilation_system_command_generator: ->(options, outdir, outfile_location, source_file_path, support_jsx) { # @@options is passed in as an argument
           outfile_option = (options[:use_typescript_outfile_option] ? "--outFile #{outfile_location}" : '')
           cmd = <<CMD

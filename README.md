@@ -14,6 +14,8 @@ and/or bug fixes.
 The current version requires that [node.js](http://nodejs.org/) is
 installed on the system.
 
+The default compiler flags currently assume that you are version `~> 2.4.1` of the TypeScript compiler.
+
 ## Installation
 
 Add this line to your application's Gemfile:
@@ -39,8 +41,12 @@ Configurations (only needed to override defaults (which are all listed below)):
 ```
 ::Typescript::Sprockets::TypescriptProcessor.options(
     compiler_command: 'node node_modules/typescript/bin/tsc',
-    compiler_flags: ['--alwaysStrict',
+    compiler_flags: ['--allowJs',
+                     '--alwaysStrict',
+                     '--checkJs'
                      '--forceConsistentCasingInFileNames',
+                     '--inlineSourceMap',
+                     '--inlineSources',
                      '--lib dom,es2015.promise,es5,scripthost',
                      '--noEmitOnError',
                      '--noFallthroughCasesInSwitch',
@@ -51,8 +57,12 @@ Configurations (only needed to override defaults (which are all listed below)):
                      '--noUnusedParameters',
                      '--strictNullChecks'
                     ],
-    jsx_compiler_flags: ['--alwaysStrict',
+    jsx_compiler_flags: ['--allowJs',
+                         '--alwaysStrict',
+                         '--checkJs'
                          '--forceConsistentCasingInFileNames',
+                         '--inlineSourceMap',
+                         '--inlineSources',
                          '--lib dom,es2015.promise,es5,scripthost',
                          '--noEmitOnError',
                          '--noFallthroughCasesInSwitch',
@@ -61,7 +71,7 @@ Configurations (only needed to override defaults (which are all listed below)):
                          '--noImplicitThis',
                          '--noUnusedLocals',
                          '--noUnusedParameters',
-                         '--strictNullChecks',
+                         '--strictNullChecks'
                          '--jsx preserve'
                         ],
     compilation_system_command_generator: ->(options, outdir, outfile_location, source_file_path, support_jsx) { # @@options is passed in as an argument
@@ -79,6 +89,8 @@ CMD
     use_typescript_outfile_option: true
 )
 ```
+
+Note that the lib reference for `es2015.promise` may require the usage of a polyfill such as [stefanpenner/es6-promise](https://github.com/stefanpenner/es6-promise).
 
 ## Referenced TypeScript dependencies
 
