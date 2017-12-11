@@ -1,3 +1,5 @@
+[![Maintainability](https://api.codeclimate.com/v1/badges/a59c8ccf9f7125c2939e/maintainability)](https://codeclimate.com/github/preetpalS/typescript-sprockets/maintainability)
+
 # TypeScript-Sprockets
 
 Extends Sprockets to work with TypeScript (this library is a fork of [typescript-rails](typescript-ruby/typeScript-rails)) without Rails. This should make it possible to use TypeScript with [middleman-sprockets](https://github.com/middleman/middleman-sprockets) and/or [blade](https://github.com/javan/blade). The library has experimental support for compiling TSX files (see TypeScript's support for JSX (note that the compiler flag `--jsx react` is currently not supported currently); please let me know if you using this library's JSX
