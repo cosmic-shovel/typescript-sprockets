@@ -17,7 +17,6 @@ module Typescript
         compiler_command: 'node node_modules/typescript/bin/tsc',
         compiler_flags: (DEFAULT_COMPILER_FLAGS = [
           '--allowJs',
-          '--alwaysStrict',
           '--checkJs',
           '--forceConsistentCasingInFileNames',
           '--inlineSourceMap',
@@ -25,12 +24,10 @@ module Typescript
           '--lib dom,es2015.promise,es5,scripthost',
           '--noEmitOnError',
           '--noFallthroughCasesInSwitch',
-          '--noImplicitAny',
           '--noImplicitReturns',
-          '--noImplicitThis',
           '--noUnusedLocals',
           '--noUnusedParameters',
-          '--strictNullChecks'
+          '--strict'
         ].freeze),
         jsx_compiler_flags: (DEFAULT_JSX_COMPILER_FLAGS = DEFAULT_COMPILER_FLAGS + ['--jsx preserve']),
         compilation_system_command_generator: lambda { |options, outdir, outfile_location, source_file_path, support_jsx| # @@options is passed in as an argument
