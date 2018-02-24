@@ -198,7 +198,7 @@ CMD
           Dir.mktmpdir do |tmpdir|
             # Writing to a tempfile within directory of TypeScript file so that TypeScript import statements work for local files.
             # Support for Sprockets lookup paths for TypeScript import statements (e.g. `import * as Package from "packages"`) is not currently supported/planned.
-            filename_without_ext_or_dir = "#{SecureRandom.hex(16)}.typescript-sprockets"
+            filename_without_ext_or_dir = "#{Pathname.new(ts_path).basename}.#{SecureRandom.hex(4)}.typescript-sprockets"
             tmpfile2 = File.join(Pathname.new(ts_path).parent.to_s, "#{filename_without_ext_or_dir}.ts#{'x' if support_jsx}")
             tmpfile2_out = File.join(tmpdir, "#{filename_without_ext_or_dir}.js#{'x' if support_jsx}")
 
