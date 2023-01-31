@@ -31,7 +31,7 @@ module Typescript
         ].freeze),
         jsx_compiler_flags: (DEFAULT_JSX_COMPILER_FLAGS = DEFAULT_COMPILER_FLAGS + ['--jsx preserve']),
         compilation_system_command_generator: lambda { |options, outdir, outfile_location, source_file_path, support_jsx| # @@options is passed in as an argument
-          outfile_option = (options[:use_typescript_outfile_option] ? "--outFile #{outfile_location}" : '')
+          outfile_option = (options[:use_typescript_outfile_option] ? "--outFile #{outfile_location} --module system" : '')
           cmd = <<~CMD
             #{options[:compiler_command]} #{(support_jsx ? options[:jsx_compiler_flags] : options[:compiler_flags]).join ' '} --outDir #{outdir} #{outfile_option} #{source_file_path}
 CMD
